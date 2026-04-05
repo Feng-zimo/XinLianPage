@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>星联 - 社区独居老人智慧守护平台</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- 引入高德地图API -->
+    <script type="text/javascript">
+        window._AMapSecurityConfig = {
+            securityJsCode: '93aac12f9e321c5c2f5a69c44cc83aa5'
+        }
+    </script>
+    <script src="https://webapi.amap.com/maps?v=2.0&key=df02fb69d653e1dd2415878141c85541"></script>
+</head>
+<body>
+    <div class="container">
+        <!-- 头部导航 -->
+        <header class="header">
+            <div class="logo">
+                <h1>🌟 星联守护平台</h1>
+                <p>StarLink Community Elder Care System</p>
+            </div>
+            <nav class="nav">
+                <button id="dashboardBtn" class="nav-btn active">监控面板</button>
+                <button id="mapBtn" class="nav-btn">地图视图</button>
+                <button id="alertBtn" class="nav-btn">报警记录</button>
+                <button id="settingsBtn" class="nav-btn">系统设置</button>
+            </nav>
+        </header>
+
+        <!-- 主要内容区域 -->
+        <main class="main-content">
+            <!-- 监控面板 -->
+            <section id="dashboard" class="panel active">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <h3>在线监护人数</h3>
+                        <div class="stat-value" id="onlineCount">0</div>
+                    </div>
+                    <div class="stat-card warning">
+                        <h3>今日预警次数</h3>
+                        <div class="stat-value" id="warningCount">0</div>
+                    </div>
+                    <div class="stat-card danger">
+                        <h3>紧急报警次数</h3>
+                        <div class="stat-value" id="alertCount">0</div>
+                    </div>
+                    <div class="stat-card success">
+                        <h3>系统运行时长</h3>
+                        <div class="stat-value" id="uptime">0小时</div>
+                    </div>
+                </div>
+
+                <!-- 实时数据面板 -->
+                <div class="vital-signs">
+                    <h2>实时生命体征监测</h2>
+                    <div class="signs-grid">
+                        <div class="sign-item">
+                            <div class="sign-label">❤️ 心率</div>
+                            <div class="sign-value" id="heartRate">--</div>
+                            <div class="sign-unit">次/分钟</div>
+                        </div>
+                        <div class="sign-item">
+                            <div class="sign-label">👣 步数</div>
+                            <div class="sign-value" id="steps">--</div>
+                            <div class="sign-unit">步</div>
+                        </div>
+                        <div class="sign-item">
+                            <div class="sign-label">📍 位置状态</div>
+                            <div class="sign-value" id="locationStatus">正常</div>
+                            <div class="sign-unit" id="distanceInfo">距离家: 0米</div>
+                        </div>
+                        <div class="sign-item">
+                            <div class="sign-label">⚡ 活动状态</div>
+                            <div class="sign-value" id="activityStatus">静止</div>
+                            <div class="sign-unit" id="lastUpdate">更新于: --</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 模拟控制面板 -->
+                <div class="simulation-panel">
+                    <h2>🧪 功能测试控制台</h2>
+                    <div class="control-buttons">
+                        <button id="simulateNormal" class="btn btn-success">模拟正常状态</button>
+                        <button id="simulateLeave" class="btn btn-warning">模拟越界外出</button>
+                        <button id="simulateFall" class="btn btn-danger">模拟跌倒事件</button>
+                        <button id="resetSimulation" class="btn btn-secondary">重置模拟</button>
+                    </div>
+                    <div class="simulation-log">
+                        <h3>系统日志</h3>
+                        <div id="logContainer"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 地图视图 -->
+            <section id="mapPanel" class="panel">
+                <div class="map-container">
+                    <div id="map"></div>
+                    <div class="map-controls">
+                        <div class="fence-settings">
+                            <h3>电子围栏设置</h3>
+                            <label>
+                                围栏半径(米):
+                                <input type="number" id="fenceRadius" value="500" min="100" max="5000">
+                            </label>
+                            <button id="updateFence" class="btn btn-primary">更新围栏</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 报警记录 -->
+            <section id="alerts" class="panel">
+                <h2>🚨 报警历史记录</h2>
+                <div class="alert-list" id="alertList">
+                    <div class="empty-state">暂无报警记录</div>
+                </div>
+            </section>
+
+            <!-- 系统设置 -->
+            <section id="settings" class="panel">
+                <h2>⚙️ 系统设置</h2>
+                <div class="settings-form">
+                    <div class="form-group">
+                        <label for="homeLat">家庭中心纬度:</label>
+                        <input type="number" id="homeLat" step="0.000001" value="31.230416">
+                    </div>
+                    <div class="form-group">
+                        <label for="homeLng">家庭中心经度:</label>
+                        <input type="number" id="homeLng" step="0.000001" value="121.473701">
+                    </div>
+                    <div class="form-group">
+                        <label for="elderName">被监护人姓名:</label>
+                        <input type="text" id="elderName" value="张爷爷">
+                    </div>
+                    <div class="form-group">
+                        <label for="contactPhone">紧急联系电话:</label>
+                        <input type="tel" id="contactPhone" value="13800138000">
+                    </div>
+                    <button id="saveSettings" class="btn btn-primary">保存设置</button>
+                </div>
+            </section>
+        </main>
+
+        <!-- 报警弹窗 -->
+        <div id="alertModal" class="modal hidden">
+            <div class="modal-content alert-modal">
+                <div class="modal-header danger">
+                    <h2>🚨 紧急报警</h2>
+                    <button class="close-btn">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="alert-icon">⚠️</div>
+                    <h3 id="alertTitle">检测到异常!</h3>
+                    <p id="alertMessage">详细信息...</p>
+                    <div class="alert-actions">
+                        <button id="acknowledgeAlert" class="btn btn-primary">确认收到</button>
+                        <button id="callEmergency" class="btn btn-danger">拨打紧急电话</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 页脚 -->
+        <footer class="footer">
+            <p>&copy; 2026 星联守护平台 | 用科技守护每一份温暖</p>
+            <p class="tech-stack">技术栈: HTML5 + CSS3 + JavaScript + 高德地图API</p>
+        </footer>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
